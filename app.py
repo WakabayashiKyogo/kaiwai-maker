@@ -409,8 +409,8 @@ def index():
         if not birthdate or not color:
             return render_template("index.html", 
                                    result="生年月日と好きな色を入力してください！",
-                                   good_match=f"{good_match}", 
-                                   bad_match=f"{bad_match}")
+                                   good_match="", 
+                                   bad_match="")
 
         # 診断結果を決定（生年月日 + 好きな色 を種にハッシュ→結果を1つ選択）
         seed_value = birthdate + color
@@ -418,6 +418,7 @@ def index():
         result = results[hash_value % len(results)]
 
         # 相性データを取得（ここでは必ず存在するので KeyError は起きないはず）
+        
         good_match = compatibility[result]["good"]
         bad_match = compatibility[result]["bad"]
 
@@ -433,4 +434,5 @@ def index():
                            bad_match="")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False)  # ← False にする
+
