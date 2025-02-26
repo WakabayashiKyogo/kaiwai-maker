@@ -24,7 +24,8 @@ form {
 }
 
 /* 入力フォームのデザイン */
-input, select {
+input,
+select {
     font-size: 18px;
     padding: 10px;
     margin: 10px;
@@ -80,8 +81,3 @@ button:hover {
 .twitter-button:hover {
     background-color: #0D95E8;
 }
-
-/* LINE共有ボタン */
-
-
-
