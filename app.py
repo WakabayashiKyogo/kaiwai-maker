@@ -402,37 +402,62 @@ results = list(compatibility.keys())
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    """
+    SEO用に初期値としてタイトルとディスクリプションを設定。
+    GETリクエスト時（未入力状態）とPOSTリクエスト時（診断結果有り）で出し分ける。
+    """
+    seo_title = "〇〇界隈診断メーカー"
+    seo_description = "生年月日と好きな色から、あなたにぴったりの界隈を診断します。"
+
     if request.method == "POST":
         birthdate = request.form.get("birthdate")
         color = request.form.get("color")
 
+        # ▼ 入力値が空の場合
         if not birthdate or not color:
-            return render_template("index.html", 
-                                   result="生年月日と好きな色を入力してください！",
-                                   good_match="", 
-                                   bad_match="")
+            return render_template(
+                "index.html",
+                result="生年月日と好きな色を入力してください！",
+                good_match="",
+                bad_match="",
+                seo_title=seo_title,           # ここでSEOタイトルを渡す
+                seo_description=seo_description
+            )
 
-        # 診断結果を決定（生年月日 + 好きな色 を種にハッシュ→結果を1つ選択）
+        # ▼ 診断結果を決定
         seed_value = birthdate + color
         hash_value = int(hashlib.md5(seed_value.encode()).hexdigest(), 16)
         result = results[hash_value % len(results)]
 
-        # 相性データを取得（ここでは必ず存在するので KeyError は起きないはず）
-        
         good_match = compatibility[result]["good"]
         bad_match = compatibility[result]["bad"]
 
-        return render_template("index.html", 
-                               result=f"あなたの界隈は「{result}」です！", 
-                               good_match=f"相性が良い界隈: {good_match}",
-                               bad_match=f"相性が悪い界隈: {bad_match}")
-    
-    # フォーム未入力（GETリクエスト）のとき
-    return render_template("index.html", 
-                           result="", 
-                           good_match="", 
-                           bad_match="")
+        # ▼ SEOのタイトル・説明文を動的に変更
+        seo_title = f"あなたは「{result}」界隈！ - 〇〇界隈診断メーカー"
+        seo_description = (
+            f"あなたの界隈は「{result}」。"
+            f"相性が良い界隈は「{good_match}」、"
+            f"相性が悪い界隈は「{bad_match}」。"
+        )
+
+        return render_template(
+            "index.html",
+            result=f"あなたの界隈は「{result}」です！",
+            good_match=f"相性が良い界隈: {good_match}",
+            bad_match=f"相性が悪い界隈: {bad_match}",
+            seo_title=seo_title,           # 診断結果を含めたSEOタイトル
+            seo_description=seo_description
+        )
+
+    # ▼ フォーム未入力（GETリクエスト）のとき
+    return render_template(
+        "index.html",
+        result="",
+        good_match="",
+        bad_match="",
+        seo_title=seo_title,               # デフォルトSEOタイトル
+        seo_description=seo_description
+    )
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=False)  # ← False にする
-
+    app.run(host="0.0.0.0", port=5000, debug=False)
